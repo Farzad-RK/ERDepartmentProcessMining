@@ -1,18 +1,3 @@
-"""
-================================================================================
-KPI VISUALIZATION FUNCTIONS
-================================================================================
-Emergency Department Process Mining - Visualization Functions
-
-Contains 4 visualization functions:
-1. plot_cumulative_lead_time() - Activity-level cumulative lead time
-2. plot_domain_specific_kpis() - Door-to-Triage, Door-to-Treatment, etc.
-3. plot_nurse_workload() - Nurse workload distribution by job type
-4. plot_los_by_acuity() - Length of Stay by Acuity Level
-
-================================================================================
-"""
-
 import pandas as pd
 import numpy as np
 import matplotlib.pyplot as plt
@@ -37,9 +22,8 @@ ACUITY_LABELS = {1: 'Level 1\n(Most Urgent)', 2: 'Level 2', 3: 'Level 3',
                  4: 'Level 4', 5: 'Level 5\n(Least Urgent)'}
 
 
-# =============================================================================
+
 # FUNCTION 1: CUMULATIVE LEAD TIME (Activity-Level KPI)
-# =============================================================================
 def plot_cumulative_lead_time(log: pd.DataFrame):
     """
     Plot cumulative lead time in hours for each activity.
@@ -155,9 +139,8 @@ def plot_cumulative_lead_time(log: pd.DataFrame):
     return fig
 
 
-# =============================================================================
+
 # FUNCTION 2: DOMAIN-SPECIFIC KPIs (Door-to-Triage, Door-to-Treatment, etc.)
-# =============================================================================
 def plot_domain_specific_kpis(log: pd.DataFrame):
     """
     Plot comprehensive visualization of domain-specific ED KPIs.
@@ -753,3 +736,128 @@ def plot_los_by_acuity(log: pd.DataFrame):
     
     return fig
 
+
+
+def plot_case_los_distribution(log: pd.DataFrame):
+    """
+    ## Case Length of Stay Distribution
+
+    Calculates and plots the distribution of case length of Stay.
+    Length of Stay is defined as the time difference between the
+    first and last event of each case, measured in hours.
+
+    - **Input:** Event log (pandas DataFrame)
+    - **Output:** Matplotlib Figure with histogram and summary statistics
+    """
+
+    # Create figure
+    fig, ax = plt.subplots(figsize=(9, 6))
+
+    # Calculate Length of Stay per case
+    case_times = log.groupby('case:concept:name')['time:timestamp']
+    lead_time_hours = (
+        case_times.max() - case_times.min()
+    ).dt.total_seconds() / 3600
+
+    # Plot histogram
+    ax.hist(
+        lead_time_hours,
+        bins=35,
+        edgecolor='white',
+        alpha=0.8,
+        color=COLORS['primary']
+    )
+
+    # Compute statistics
+    median_val = lead_time_hours.median()
+    mean_val = lead_time_hours.mean()
+
+    # Add mean and median lines
+    ax.axvline(
+        median_val,
+        color=COLORS['secondary'],
+        linestyle='--',
+        linewidth=2,
+        label=f'Median: {median_val:.1f} h'
+    )
+    ax.axvline(
+        mean_val,
+        color=COLORS['accent'],
+        linestyle=':',
+        linewidth=2,
+        label=f'Mean: {mean_val:.1f} h'
+    )
+
+    # Labels and title
+    ax.set_xlabel('Length of Stay (Hours)')
+    ax.set_ylabel('Frequency (Number of Cases)')
+    ax.set_title('Case Level KPI: Length of Stay')
+    ax.legend()
+
+    # Statistics annotation
+    stats_text = (
+        f'Min: {lead_time_hours.min():.1f} h\n'
+        f'Max: {lead_time_hours.max():.1f} h\n'
+        f'Std: {lead_time_hours.std():.1f} h'
+    )
+    ax.text(
+        0.99, 0.8,
+        stats_text,
+        transform=ax.transAxes,
+        fontsize=9,
+        verticalalignment='top',
+        horizontalalignment='right',
+        bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5)
+    )
+
+    plt.tight_layout()
+    plt.show()
+
+
+def plot_case_length_distribution(log: pd.DataFrame):
+    """
+    ## 📈 Case Length Distribution
+
+    Generates a histogram showing the distribution of the number of events per case.
+
+    - **Input:** Event log (pandas DataFrame).
+    - **Output:** Matplotlib Figure displaying the histogram with key statistics 
+      (Mean, Median, Min, Max, Std).
+    """
+
+    # Create a new figure and axes for the plot
+    fig, ax = plt.subplots(figsize=(9, 6))
+
+    events_per_case = log.groupby('case:concept:name').size()
+
+    # Plotting the histogram
+    ax.hist(events_per_case, bins=35, edgecolor='white', alpha=0.8,
+            color=COLORS['primary'])
+
+    # Adding mean and median lines
+    median_val = events_per_case.median()
+    mean_val = events_per_case.mean()
+
+    ax.axvline(median_val, color=COLORS['secondary'],
+               linestyle='--', linewidth=2, label=f'Median: {median_val:.0f}')
+    ax.axvline(mean_val, color=COLORS['accent'],
+               linestyle=':', linewidth=2, label=f'Mean: {mean_val:.1f}')
+
+    # Setting labels and title
+    ax.set_xlabel('Number of Events per Case')
+    ax.set_ylabel('Frequency (Number of Cases)')
+    ax.set_title('Case Level KPI: Case Complexity')
+    ax.legend()
+
+    # Add statistics annotation
+    stats_text = (
+        f'Min: {events_per_case.min()}\n'
+        f'Max: {events_per_case.max()}\n'
+        f'Std: {events_per_case.std():.1f}'
+    )
+    ax.text(0.99, 0.8, stats_text, transform=ax.transAxes, fontsize=9,
+            verticalalignment='top', horizontalalignment='right',
+            bbox=dict(boxstyle='round', facecolor='wheat', alpha=0.5))
+
+    plt.tight_layout()
+    plt.show()

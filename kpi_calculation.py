@@ -37,10 +37,6 @@ def plot_cumulative_lead_time(log: pd.DataFrame):
     log : pd.DataFrame
         Event log with columns: case:concept:name, concept:name, time:timestamp
         
-    Returns:
-    --------
-    matplotlib.figure.Figure
-        The generated figure
     """
     # Ensure timestamp is datetime
     log = log.copy()
@@ -136,7 +132,6 @@ def plot_cumulative_lead_time(log: pd.DataFrame):
         print(f"{act:<30} {stats['mean_hours']:>10.2f} {stats['median_hours']:>10.2f} "
               f"{stats['std_hours']:>10.2f} {int(stats['count']):>8}")
     
-    return fig
 
 
 
@@ -158,10 +153,6 @@ def plot_domain_specific_kpis(log: pd.DataFrame):
     log : pd.DataFrame
         Event log with columns: case:concept:name, concept:name, time:timestamp
         
-    Returns:
-    --------
-    matplotlib.figure.Figure
-        The generated figure
     """
     # Ensure timestamp is datetime
     log = log.copy()
@@ -355,8 +346,6 @@ def plot_domain_specific_kpis(log: pd.DataFrame):
         if len(data) > 0:
             print(f"{kpi_label:<30} {data.mean():>10.2f} {data.median():>10.2f} "
                   f"{data.std():>10.2f} {len(data):>8}")
-    
-    return fig
 
 
 
@@ -373,10 +362,6 @@ def plot_nurse_workload(log: pd.DataFrame):
     log : pd.DataFrame
         Event log with columns: reconciliation_nurse_id, administering_nurse_id
         
-    Returns:
-    --------
-    matplotlib.figure.Figure
-        The generated figure
     """
     # Prepare data for reconciliation nurses
     recon_data = log[log['reconciliation_nurse_id'].notna()].copy()
@@ -546,7 +531,6 @@ def plot_nurse_workload(log: pd.DataFrame):
     print(f"\n  Total Administration Nurses: {len(admin_stats)}")
     print(f"  Total Reconciliation Nurses: {len(recon_stats)}")
     
-    return fig
 
 
 
@@ -733,8 +717,6 @@ def plot_los_by_acuity(log: pd.DataFrame):
             print("    → Significant difference in LOS across acuity levels (p < 0.05)")
         else:
             print("    → No significant difference in LOS across acuity levels (p ≥ 0.05)")
-    
-    return fig
 
 
 
